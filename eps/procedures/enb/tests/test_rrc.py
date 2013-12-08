@@ -111,6 +111,8 @@ class TestUECapabilityTransferProcedure(unittest.TestCase):
 
     def __procedureCompleteCallback__(self, result, rrcTransactionIdentifier):
         self.result = result
+    def tearDown(self):
+        [s.stop() for s in self.enbIoService, self.ueIoService] 
 
     def test_procedureSuccessful(self):
         self.enbProcedure.start((localhost(), 9001), 0, "eutra")
