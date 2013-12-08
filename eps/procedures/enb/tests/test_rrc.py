@@ -4,8 +4,9 @@ import time
 from eps.utils.io import IoService, localhost
 from eps.procedures.enb.rrc import RrcConnectionEstablishmentProcedure as EnbRrcConnectionEstablishmentProcedure
 from eps.procedures.enb.rrc import InitialSecurityActivationProcedureHandler as EnbInitialSecurityActivationProcedureHandler
+from eps.procedures.enb.rrc import UECapabilityTransferProcedureHandler as UECapabilityTransferProcedureHandler
 from eps.messages.rrc import rrcConnectionRequest, rrcConnectionSetupComplete,\
-    securityModeComplete
+    securityModeComplete, ueCapabilityInformation, ueCapabilityEnquiry
 
 
 class TestEnbRrcConnectionProcedure(unittest.TestCase):
@@ -98,6 +99,25 @@ class TestEnbInitialSecurityActivationProcedure(unittest.TestCase):
         time.sleep(0.1)
         self.assertEqual(self.result, EnbInitialSecurityActivationProcedureHandler.Complete)
 
+class TestUECapabilityTransferProcedure(unittest.TestCase):
+    def setUp(self):
+        self.enbIoService = IoService("enb", 9000)
+        self.ueIoService = IoService("ue", 9001)
+        [s.start() for s in self.enbIoService, self.ueIoService]
+        self.enbProcedure = UECapabilityTransferProcedureHandler(
+            self.enbIoService, self.__procedureCompleteCallback__)
+        self.enbIoService.addIncomingMessageCallback(self.enbProcedure.handleIncomingMessage)
+        self.result = None
+
+    def __procedureCompleteCallback__(self, result, rrcTransactionIdentifier):
+        self.result = result
+
+    def test_procedureSuccessful(self):
+        self.enbProcedure.start((localhost(), 9001), 0, "eutra")
+        time.sleep(0.1)
+        self.ueIoService.sendMessage("enb", *ueCapabilityInformation(0, "eutra"))
+        time.sleep(0.1)
+        self.assertEqual(self.result, ueCapabilityEnquiry.Complete)
 
 if __name__ == "__main__":
     unittest.main()
