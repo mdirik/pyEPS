@@ -117,7 +117,7 @@ class TestUECapabilityTransferProcedure(unittest.TestCase):
         time.sleep(0.1)
         self.ueIoService.sendMessage("enb", *ueCapabilityInformation(0, "eutra"))
         time.sleep(0.1)
-        self.assertEqual(self.result, ueCapabilityEnquiry.Complete)
+        self.assertEqual(self.result, UECapabilityTransferProcedureHandler.Complete)
 
 if __name__ == "__main__":
     unittest.main()
