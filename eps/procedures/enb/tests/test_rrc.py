@@ -4,9 +4,9 @@ import time
 from eps.utils.io import IoService, localhost
 from eps.procedures.enb.rrc import RrcConnectionEstablishmentProcedure as EnbRrcConnectionEstablishmentProcedure
 from eps.procedures.enb.rrc import InitialSecurityActivationProcedureHandler as EnbInitialSecurityActivationProcedureHandler
-from eps.procedures.enb.rrc import UECapabilityTransferProcedureHandler as UECapabilityTransferProcedureHandler
+from eps.procedures.enb.rrc import UECapabilityTransferProcedureHandler as EnbUECapabilityTransferProcedureHandler
 from eps.messages.rrc import rrcConnectionRequest, rrcConnectionSetupComplete,\
-    securityModeComplete, ueCapabilityInformation, ueCapabilityEnquiry
+    securityModeComplete, ueCapabilityInformation
 
 
 class TestEnbRrcConnectionProcedure(unittest.TestCase):
@@ -104,7 +104,7 @@ class TestUECapabilityTransferProcedure(unittest.TestCase):
         self.enbIoService = IoService("enb", 9000)
         self.ueIoService = IoService("ue", 9001)
         [s.start() for s in self.enbIoService, self.ueIoService]
-        self.enbProcedure = UECapabilityTransferProcedureHandler(
+        self.enbProcedure = EnbUECapabilityTransferProcedureHandler(
             self.enbIoService, self.__procedureCompleteCallback__)
         self.enbIoService.addIncomingMessageCallback(self.enbProcedure.handleIncomingMessage)
         self.result = None
@@ -117,7 +117,7 @@ class TestUECapabilityTransferProcedure(unittest.TestCase):
         time.sleep(0.1)
         self.ueIoService.sendMessage("enb", *ueCapabilityInformation(0, "eutra"))
         time.sleep(0.1)
-        self.assertEqual(self.result, UECapabilityTransferProcedureHandler.Complete)
+        self.assertEqual(self.result, EnbUECapabilityTransferProcedureHandler.Complete)
 
 if __name__ == "__main__":
     unittest.main()
