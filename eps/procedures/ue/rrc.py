@@ -1,6 +1,6 @@
 import random
 
-from eps.messages.rrc import rrcConnectionRequest, rrcConnectionSetupComplete
+from eps.messages.rrc import rrcConnectionRequest, rrcConnectionSetupComplete, ueCapabilityInformation
 from eps.messages.mac import randomAccessPreamble
 
 class RrcConnectionEstablishmentProcedure(object):
@@ -110,3 +110,20 @@ class RrcConnectionEstablishmentProcedure(object):
     def __sendRrcConnectionSetupComplete__(self):
         self.ioService.sendMessage(self.enbAddress, *rrcConnectionSetupComplete(self.rrcTransactionIdentifier, 
             self.rrcEstablishmentInputParameters["selectedPlmnIdentity"], self.rrcEstablishmentInputParameters["initialNasMessage"]))
+
+class UECapabilityTransferProcedureHandler:
+    def __init__(self, ioService,):
+        self.ioService = ioService
+        self.outstandingProcedures = set()
+
+    def handleIncomingMessage(self, source, message):
+        if message["messageType"] == "ueCapabilityEnquiry":
+            pass
+            rrcTransactionIdentifier = message["rrcTransactionIdentifier"]
+            self.outstandingProcedures.remove(rrcTransactionIdentifier)
+            return True
+        return False
+    def start(self, ueAddress, rrcTransactionIdentifier, ueCapabilityRequest="eutra"):
+        self.ioService.sendMessage(ueAddress, *ueCapabilityInformation(
+            rrcTransactionIdentifier, ueCapabilityRequest))
+        self.outstandingProcedures.add(rrcTransactionIdentifier)
