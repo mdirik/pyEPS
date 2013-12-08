@@ -192,11 +192,11 @@ class UECapabilityTransferProcedureHandler:
         self.procedureCompletionCallback = procedureCompletionCallback
         self.outstandingProcedures = set()
 
-    def handleIncomingMessage(self, source, message):
+    def handleIncomingMessage(self, source, interface, channelInfo, message):
         if message["messageType"] == "ueCapabilityInformation":
-            pass
             rrcTransactionIdentifier = message["rrcTransactionIdentifier"]
             self.outstandingProcedures.remove(rrcTransactionIdentifier)
+            self.procedureCompletionCallback(self.Complete, rrcTransactionIdentifier)
             return True
         return False
     def start(self, ueAddress, rrcTransactionIdentifier, ueCapabilityRequest="eutra"):
