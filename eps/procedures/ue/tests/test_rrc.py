@@ -3,7 +3,8 @@ import time
 
 from eps.utils.io import IoService, localhost
 from eps.procedures.ue.rrc import RrcConnectionEstablishmentProcedure
-from eps.messages.rrc import rrcConnectionSetup
+from eps.procedures.ue.rrc import UECapabilityTransferProcedureHandler
+from eps.messages.rrc import rrcConnectionSetup, ueCapabilityEnquiry
 from eps.messages.mac import randomAccessResponse, contentionResolutionIdentity
 
 class TestRrcConnectionProcedure(unittest.TestCase):
@@ -118,6 +119,30 @@ class TestRrcConnectionProcedure(unittest.TestCase):
         time.sleep(0.2)
         self.assertEqual(self.result, None)
         self.procedure.terminate()
+
+class TestUECapabilityTransferProcedure(unittest.TestCase):
+    def setUp(self):
+        self.enbIoService = IoService("enb", 9000)
+        self.ueIoService = IoService("ue", 9001)
+        [s.start() for s in self.enbIoService, self.ueIoService]
+        import sys
+        print 'current trace function', sys.gettrace()
+        self.ueProcedure = UECapabilityTransferProcedureHandler(
+            self.ueIoService, self.__procedureCompleteCallback__)
+        self.ueIoService.addIncomingMessageCallback(self.ueProcedure.handleIncomingMessage)
+        self.result = None
+
+    def __procedureCompleteCallback__(self, result, rrcTransactionIdentifier):
+        self.result = result
+    def tearDown(self):
+        [s.stop() for s in self.enbIoService, self.ueIoService] 
+        
+    def test_procedureSuccessful(self):
+        time.sleep(0.1)
+        self.enbIoService.sendMessage((localhost(), 9001), *ueCapabilityEnquiry(
+            0, "eutra"))
+        time.sleep(0.1)
+        self.assertEqual(self.result, UECapabilityTransferProcedureHandler.Complete)
 
 if __name__ == "__main__":
     unittest.main()
