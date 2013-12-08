@@ -1,7 +1,7 @@
 import random
 from collections import Counter
 
-from eps.messages.rrc import rrcConnectionSetup, securityModeCommand
+from eps.messages.rrc import rrcConnectionSetup, securityModeCommand, ueCapabilityEnquiry
 from eps.messages.mac import randomAccessResponse, contentionResolutionIdentity
 
 
@@ -183,3 +183,20 @@ class InitialSecurityActivationProcedureHandler:
         }
         messageType = message["messageType"]
         mapping.get(messageType, lambda: False)()
+
+class UECapabilityTransferProcedureHandler:
+    def __init__(self, ioService,):
+        self.ioService = ioService
+        self.outstandingProcedures = set()
+
+    def handleIncomingMessage(self, source, message):
+        if message["messageType"] == "ueCapabilityInformation":
+            pass
+            rrcTransactionIdentifier = message["rrcTransactionIdentifier"]
+            self.outstandingProcedures.remove(rrcTransactionIdentifier)
+            return True
+        return False
+    def start(self, ueAddress, rrcTransactionIdentifier, ueCapabilityRequest="eutra"):
+        self.ioService.sendMessage(ueAddress, *ueCapabilityEnquiry(
+            rrcTransactionIdentifier, ueCapabilityRequest))
+        self.outstandingProcedures.add(rrcTransactionIdentifier)
