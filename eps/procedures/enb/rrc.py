@@ -185,8 +185,11 @@ class InitialSecurityActivationProcedureHandler:
         mapping.get(messageType, lambda: False)()
 
 class UECapabilityTransferProcedureHandler:
-    def __init__(self, ioService,):
+    Complete, Failure = range(2)
+
+    def __init__(self, ioService, procedureCompletionCallback):
         self.ioService = ioService
+        self.procedureCompletionCallback = procedureCompletionCallback
         self.outstandingProcedures = set()
 
     def handleIncomingMessage(self, source, message):
