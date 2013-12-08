@@ -112,18 +112,23 @@ class RrcConnectionEstablishmentProcedure(object):
             self.rrcEstablishmentInputParameters["selectedPlmnIdentity"], self.rrcEstablishmentInputParameters["initialNasMessage"]))
 
 class UECapabilityTransferProcedureHandler:
-    def __init__(self, ioService,):
+    Complete, Failure = range(2)
+
+    def __init__(self, ioService, procedureCompletionCallback):
         self.ioService = ioService
+        self.procedureCompletionCallback = procedureCompletionCallback
         self.outstandingProcedures = set()
 
-    def handleIncomingMessage(self, source, message):
+    def handleIncomingMessage(self, source, interface, channelInfo, message):
         if message["messageType"] == "ueCapabilityEnquiry":
-            pass
             rrcTransactionIdentifier = message["rrcTransactionIdentifier"]
-            self.outstandingProcedures.remove(rrcTransactionIdentifier)
+            #self.outstandingProcedures.remove(rrcTransactionIdentifier)
+            self.ioService.sendMessage(source, *ueCapabilityInformation(
+                rrcTransactionIdentifier, "eutra"))
+            self.procedureCompletionCallback(self.Complete, rrcTransactionIdentifier)
             return True
         return False
-    def start(self, ueAddress, rrcTransactionIdentifier, ueCapabilityRequest="eutra"):
-        self.ioService.sendMessage(ueAddress, *ueCapabilityInformation(
-            rrcTransactionIdentifier, ueCapabilityRequest))
-        self.outstandingProcedures.add(rrcTransactionIdentifier)
+#     def start(self, ueAddress, rrcTransactionIdentifier, ueCapabilityRequest="eutra"):
+#         self.ioService.sendMessage(ueAddress, *ueCapabilityEnquiry(
+#             rrcTransactionIdentifier, ueCapabilityRequest))
+#         self.outstandingProcedures.add(rrcTransactionIdentifier)
