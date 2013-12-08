@@ -125,3 +125,35 @@ securityModeFailure = lambda rrcTransactionIdentifier: (
      "rrcTransactionIdentifier": rrcTransactionIdentifier,
     }
 )
+
+ueCapabilityEnquiry = \
+    lambda rrcTransactionIdentifier, ueCapabilityRequest: (
+    "uu",
+    {
+     "physicalChannel": "pusch",
+     "transportChannel": "ul-sch",
+     "logicalChannel": "dcch",
+     "lcid": "srb1"
+    },
+    {
+     "messageType": "ueCapabilityEnquiry",
+     "rrcTransactionIdentifier": rrcTransactionIdentifier,
+     "ueCapabilityRequest": ueCapabilityRequest,
+    }
+)
+
+ueCapabilityInformation = \
+    lambda rrcTransactionIdentifier, ueCapabilityInformation: (
+    "uu",
+    {
+     "physicalChannel": "pusch",
+     "transportChannel": "ul-sch",
+     "logicalChannel": "dcch",
+     "lcid": "srb1"
+    },
+    {
+     "messageType": "ueCapabilityInformation",
+     "rrcTransactionIdentifier": rrcTransactionIdentifier,
+     "ueCapabilityInformation": ueCapabilityInformation,
+    }
+)
